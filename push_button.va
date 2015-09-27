@@ -1,0 +1,136 @@
+odule pushButton(
+input mclk,
+input[1:0] btn,
+input reset,
+
+output [3:0] an,
+output [6:0] seg
+);
+
+
+reg [3:0] anode_select;
+reg [3:0] an_count1;
+reg [3:0] an_count2;
+reg [6:0] seg_temp;
+reg [24:0] count=0;
+reg [3:0] temp1;
+
+
+always@(posedge mclk)
+	begin
+	if (count[24])
+		count <= 0;
+	else
+		count <= count + 1'd1;
+end
+
+parameter M = 25;
+reg [M-1:0] clk_div3;// produces 0.08 seconds delay
+
+always @ (posedge mclk or posedge reset)
+ begin
+  if (reset)
+   clk_div3 <= 0;
+  else
+   clk_div3 <= clk_div3 + 1;
+ end
+
+assign clk3 = &clk_div3;
+
+parameter N = 27;
+reg [N-1:0] clk_div4;// produces 0.08 seconds delay
+
+always @ (posedge mclk or posedge reset)
+ begin
+  if (reset)
+   clk_div4 <= 0;
+  else
+   clk_div4 <= clk_div4 + 1;
+ end
+
+assign clk4 = &clk_div4;
+
+
+
+
+always @(posedge btn[0],posedge btn[1])
+begin
+	
+	  if(btn[0])
+	begin
+		  
+			if(an_count1==4'b1001)
+			   begin
+				an_count1 <= 4'b0000;
+            an_count2 <= an_count2+1;
+            end				
+		             else
+			  an_count1 <= an_count1+1; 	
+    end
+		  
+
+       if(btn[1])
+	begin
+	
+		 
+		 if(clk3)
+		
+       an_count1<= an_count1;
+		 
+		 
+	  	if(clk4)
+       an_count2<=an_count2+1;
+		 
+              		 
+		  
+       		 
+	
+	end
+	end
+
+
+	
+
+always @(posedge count[4])
+
+begin
+	if(count[8])
+	begin
+	temp1 =an_count1;
+	anode_select <=4'b1110;
+	end
+	if(count[12])
+	begin
+	temp1 = an_count2;
+	anode_select <= 4'b1101;
+	end
+
+end
+
+	
+		always @(posedge mclk)
+		
+		begin
+			 case (temp1)
+				
+				
+				4'b0000 : seg_temp = 7'b1000000;
+				4'b0001 : seg_temp = 7'b1111001;
+				4'b0010 : seg_temp = 7'b0100100;
+				4'b0011 : seg_temp = 7'b0110000;
+				4'b0100 : seg_temp = 7'b0011001;
+				4'b0101 : seg_temp = 7'b0010010;
+				4'b0110 : seg_temp = 7'b0000010;
+				4'b0111 : seg_temp = 7'b1111000;
+				4'b1000 : seg_temp = 7'b0000000;
+				4'b1001 : seg_temp = 7'b0011000;
+				default : seg_temp = 7'b1000000;
+				
+			endcase
+		end
+	     
+	   assign an = anode_select;
+		assign seg = seg_temp;
+		
+
+endmodule
